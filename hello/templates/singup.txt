@@ -1,0 +1,2 @@
+a ajouter apres la ligne 21 de login truncatechars_html
+<p>Vous n'avez pas de compte ? <a href="{% url 'signup' %}">Inscrivez-vous ici</a></p>
