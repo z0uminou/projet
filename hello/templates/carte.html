@@ -1,86 +1,39 @@
-<!--<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Carte de La Réunion</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
-    <style>
-        #map {height: 700px; width: 100%;}
-    </style>
-</head>
-<body>
-    <h1>Emplacement des ruches</h1>
-    <div id="map"></div>
-
-    <h2>Bienvenue sur la carte</h2>
-    <a href="{% url 'login' %}">Se connecter</a>
-
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script>
-        // Initialiser la carte avec une vue par défaut
-        var map = L.map('map').setView([-21.1151, 55.5364], 10);
-
-        // Ajouter la couche de tuiles à la carte
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '@OpenStreetMap'
-        }).addTo(map);
-
-        // Charger les données des ruches depuis Django
-        const ruchesData = {{ ruches_data|safe }};
-
-        // Ajouter les marqueurs pour chaque ruche
-        ruchesData.forEach(function(ruche) {
-            const lat = parseFloat(ruche.latitude);
-            const lon = parseFloat(ruche.longitude);
-
-            if (!isNaN(lat) && !isNaN(lon)) {
-                L.marker([lat, lon]).addTo(map)
-                    .bindPopup(`${ruche.nom} - Coordonnées : ${lat}, ${lon}`);
-            }
-        });
-    </script>
-</body>
-</html>
--->
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Carte de La Réunion</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte des Ruchers</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        #map { height: 700px; width: 100%; }
+        #map {
+            height: 600px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
-    <h1>Emplacement des ruchers</h1>
+    <h1>Carte des Ruchers</h1>
     <div id="map"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        var map = L.map('map').setView([-21.1151, 55.5364], 10);
+        // Initialisation de la carte avec Leaflet
+        var map = L.map('map').setView([-21.1349425, 55.5273056], 10); // Coordonnées par défaut (Réunion)
 
+        // Ajout de la couche de fond (OpenStreetMap)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '@OpenStreetMap'
+            maxZoom: 18,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Récupération des coordonnées des ruchers depuis Django
-        var ruchers = {{ ruchers|safe }};
+        // Liste des ruchers avec leurs coordonnées
+        const ruchers = {{ ruchers|safe }}; // Injecte les données JSON des ruchers
 
         // Ajout des marqueurs pour chaque rucher
-        ruchers.forEach(function(rucher) {
-            var lat = rucher.latitude;
-            var lon = rucher.longitude;
-            var nom = rucher.nom;
-
-            if (lat && lon) {
-                L.marker([lat, lon]).addTo(map)
-                    .bindPopup("Rucher : " + nom + "<br>Coordonnées : " + lat + ", " + lon)
-                    .openPopup();
-            }
+        ruchers.forEach(rucher => {
+            const marker = L.marker([rucher.latitude, rucher.longitude]).addTo(map);
+            marker.bindPopup(`<b>${rucher.nom}</b><br>Latitude: ${rucher.latitude}<br>Longitude: ${rucher.longitude}<br> <a href="${rucher.url }">Voir les ruches</a>`);
         });
     </script>
 </body>

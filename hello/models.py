@@ -16,11 +16,12 @@ class Rucher(models.Model):
     id = models.CharField(max_length=50, primary_key=True)
     apiculteurs = models.ManyToManyField(Apiculteur, related_name="ruchers")
     nom = models.CharField(max_length=100)
-    localisation = models.CharField(max_length=255)
+    latitude = models.FloatField(blank=True, null=True)  # Ajouter la latitude
+    longitude = models.FloatField(blank=True, null=True)  # Ajouter la longitude
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.nom} - {self.localisation}"
+        return f"{self.nom} - ({self.latitude}) : ({self.longitude})"
 
 
 class Ruche(models.Model):
