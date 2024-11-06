@@ -19,6 +19,10 @@ def dashboard(request):
     readings = Rucher.objects.filter(nom="Nom des ruchers")
     return render(request, 'dashboard.html', {'readings': readings})
 
+@login_required
+def carte_view(request):
+    return render(request, 'carte.html')
+
 
 #print("Noms des capteurs:", sensor_names)
 
