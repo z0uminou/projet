@@ -63,5 +63,7 @@ class Mesure(models.Model):
     temperature = models.FloatField(blank=True, null=True)
 
     def __str__(self):
-        return f"Date {self.date} Mesure {self.temperature} (Capteur {self.id_capteur})"
+        return f"Date {self.date} Mesure {self.temperature} (Capteur {self.id_capteur}, Position {self.id_capteur.position})"
+    
+    
 
