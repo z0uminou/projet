@@ -7,6 +7,8 @@
 <body>
     <h1>{{ rucher.nom }}</h1>
     <h2>Localisation : {{ rucher.latitude }}, {{ rucher.longitude }}</h2>
+
+    <p><a href="{% url 'apimeteo' %}">Consulter les données météo</a></p>
     
     <h3>Choisissez une ruche pour afficher les valeurs des capteurs</h3>
     <ul>

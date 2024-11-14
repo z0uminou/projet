@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Données Météo</title>
+</head>
+<body>
+    <h1>Rechercher les données météorologiques</h1>
+    
+    <!-- Formulaire pour entrer l'ID de la station et les dates -->
+    <form method="GET" action="{% url 'get_meteo_data' %}">
+        <label for="station_id">ID de la station :</label>
+        <input type="text" id="station_id" name="station_id" required><br><br>
+
+        <label for="start_date">Date de début :</label>
+        <input type="date" id="start_date" name="start_date" required><br><br>
+
+        <label for="end_date">Date de fin :</label>
+        <input type="date" id="end_date" name="end_date" required><br><br>
+
+        <button type="submit">Rechercher</button>
+    </form>
+
+    <!-- Affichage des données ou des erreurs -->
+    {% if data %}
+        <h2>Résultats de la recherche</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Température</th>
+                    <th>Humidité</th>
+                    <!-- Vous pouvez ajouter d'autres colonnes en fonction des données disponibles -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in data %}
+                    <tr>
+                        <td>{{ entry.date }}</td>
+                        <td>{{ entry.temperature }}</td>
+                        <td>{{ entry.humidity }}</td>
+                        <!-- Ajoutez d'autres cellules en fonction des données disponibles -->
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+</body>
+</html>

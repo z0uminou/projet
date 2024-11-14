@@ -8,6 +8,6 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('dashboard/', views.dashboard, name='carte'),
     path('rucher/<str:rucher_id>/', views.vue_rucher, name='vue_rucher'),
-]
-
+    path('apimeteo/', views.apimeteo, name='apimeteo'),
+] 
 

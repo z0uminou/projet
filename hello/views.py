@@ -6,14 +6,15 @@ from .models import Rucher, Ruche, Mesure
 import time  # pour la simulation du délai de mesure
 from django.http import JsonResponse
 from django.urls import reverse
-
+import requests
+from django.conf import settings
 
 # Create your views here.
 
 def home(request):
     return HttpResponse("Hellow, Django !")
 
-#@login_required
+# @login_required
 """def dashboard(request):
     # Récupérer les relevés de température pour l'utilisateur
     readings = Rucher.objects.filter(nom="Nom des ruchers")
@@ -28,12 +29,11 @@ def dashboard(request):
             'nom': rucher.nom,
             'latitude': rucher.latitude,
             'longitude': rucher.longitude,
-            'url': reverse('vue_rucher', args=[rucher.id])
+            'url': reverse('vue_rucher', args=[rucher.id])  # reversed URL is only needed here
         }
         for rucher in ruchers
     ]
     return render(request, 'carte.html', {'ruchers': ruchers_data})
-
 
 
 def vue_rucher(request, rucher_id):
@@ -56,19 +56,36 @@ def vue_rucher(request, rucher_id):
     })
 
 
-#print("Noms des capteurs:", sensor_names)
+def apimeteo(station_id, start_date, end_date):
+    url = f"https://exemple.com/api/releve/{station_id}"
+    headers = {
+        'Authorization': f'Bearer {settings.API_TOKEN}'  # Utilisez le token API configuré dans settings.py
+    }
+    params = {
+        'start_date': start_date,
+        'end_date': end_date
+    }
+    response = requests.get(url, headers=headers, params=params)
+    
+    # Vérifier la réponse de l'API
+    if response.status_code == 200:
+        return response.json()  # Renvoie les données au format JSON
+    else:
+        return None
 
-"""
-def get_sensor_data():
-    sensor_data = TemperatureSensorManager()
-    get_data = sensor_data.get_temperatures()# Remplacez par votre code de récupération des données 1-wire
-    return get_data  # Exemple : température en °C
+def releve_data(request):
+    if request.method == 'POST':
+        station_id = request.POST['station_id']
+        start_date = request.POST['start_date']
+        end_date = request.POST['end_date']
+        
+        # Appel de l'API pour récupérer les données
+        data = apimeteo(station_id, start_date, end_date)  # use the function here
 
-#def record_temperature(request):
-    if request.user.is_authenticated:
-        hive_id = request.GET.get('hive_id')
-        temperature = get_sensor_data()
-        TemperatureReading.objects.create(hive_id=hive_id, temperature=temperature)
-        return JsonResponse({'status': 'success', 'temperature': temperature})
-    return JsonResponse({'status': 'error', 'message': 'User not authenticated'})
-"""
+        # Vérifier si des données ont été renvoyées
+        if data:
+            return render(request, 'apimeteo.html', {'data': data})
+        else:
+            return render(request, 'apimeteo.html', {'error': 'Aucune donnée trouvée pour cette période.'})
+
+    return render(request, 'apimeteo.html')
