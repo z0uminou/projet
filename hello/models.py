@@ -13,7 +13,6 @@ class Apiculteur(models.Model):
         return f"{self.nom} {self.prenom}"
     
 class Rucher(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
     apiculteurs = models.ManyToManyField(Apiculteur, related_name="ruchers")
     nom = models.CharField(max_length=100)
     latitude = models.FloatField(blank=True, null=True)  # Ajouter la latitude
@@ -25,7 +24,6 @@ class Rucher(models.Model):
 
 
 class Ruche(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
     rucher = models.ForeignKey(Rucher, on_delete=models.CASCADE, related_name="ruches")
     nom = models.CharField(max_length=100)
     type = models.CharField(max_length=50, blank=True, null=True)  # ex : "Dadant", "Langstroth"
@@ -36,7 +34,6 @@ class Ruche(models.Model):
 
 
 class Cadre(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
     ruche = models.ForeignKey(Ruche, on_delete=models.CASCADE, related_name="cadres")
     numero = models.IntegerField()  # Numéro de cadre pour repérer l'emplacement dans la ruche
     
@@ -44,7 +41,6 @@ class Cadre(models.Model):
         return f"Cadre {self.numero} (Ruche: {self.ruche.nom})"
 
 class Ligne(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
     cadre = models.ForeignKey(Cadre,on_delete=models.CASCADE, related_name="Lignes" )
     numero_ligne = models.IntegerField()
 
@@ -52,7 +48,6 @@ class Ligne(models.Model):
         return f"Ligne {self.numero_ligne} (Cadre: {self.cadre.numero})"
     
 class Capteur(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
     ligne = models.ForeignKey(Ligne, on_delete=models.CASCADE, related_name="capteurs")
     identifiant = models.CharField(max_length=50)  # Identifiant unique du capteur
     position = models.IntegerField() # Position du capteur sur la ligne (1 à 5 par exemple)
@@ -63,7 +58,6 @@ class Capteur(models.Model):
     
 
 class Mesure(models.Model):
-    id = models.CharField(max_length=50, primary_key=True)
     id_capteur = models.ForeignKey(Capteur,on_delete=models.CASCADE, null=True, blank=True, related_name="mesures")
     date = models.DateTimeField(auto_now_add=True)
     temperature = models.FloatField(blank=True, null=True)
