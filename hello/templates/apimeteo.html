@@ -1,0 +1,33 @@
+<!-- apimeteo.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Meteo</title>
+</head>
+<body>
+    <h1>Données Météo en Temps Réel</h1>
+    <div id="data-container">
+        <p>Chargement des données...</p>
+    </div>
+    <script>
+        // Exemple de récupération des données en temps réel
+        const token = 'votre_token'; // Remplacez par votre token
+        const apiUrl = `/api/get_weather_data?token=${token}`;
+
+        async function fetchData() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                const container = document.getElementById('data-container');
+                container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données:', error);
+            }
+        }
+
+        setInterval(fetchData, 5000); // Mettre à jour toutes les 5 secondes
+    </script>
+</body>
+</html>

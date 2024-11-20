@@ -1,3 +1,42 @@
+<!--<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Détails du Rucher - {{ rucher.nom }}</title>
+</head>
+<body>
+    <h1>{{ rucher.nom }}</h1>
+    <h2>Localisation : {{ rucher.latitude }}, {{ rucher.longitude }}</h2>
+    
+    <h3>Choisissez une ruche pour afficher les valeurs des capteurs</h3>
+    <ul>
+        {% for ruche in ruches %}
+            <li>
+                <a href="?ruche_id={{ ruche.id }}">{{ ruche.nom }} (Type: {{ ruche.type }})</a>
+            </li>
+        {% endfor %}
+    </ul>
+    
+    {% if ruche_select %}
+        <h3>Mesures des Capteurs de la Ruche {{ ruche_select.nom }}</h3>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Capteur</th>
+                <th>Température</th>
+            </tr>
+            {% for mesure in mesures %}
+            <tr>
+                <td>{{ mesure.date }}</td>
+                <td>{{ mesure.id_capteur.identifiant }}</td>
+                <td>{{ mesure.temperature }}°C</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    
+</body>
+</html>-->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -16,7 +55,7 @@
             </li>
         {% endfor %}
     </ul>
-
+    
     {% if ruche_select %}
         <h3>Mesures des Capteurs de la Ruche {{ ruche_select.nom }}</h3>
         <table>
@@ -34,5 +73,9 @@
             {% endfor %}
         </table>
     {% endif %}
+    
+    <!-- Lien ajouté pour accéder à la page API Météo -->
+    <hr>
+    <a href="{% url 'apimeteo' %}">Voir les données météo</a>
 </body>
 </html>
