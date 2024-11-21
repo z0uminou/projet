@@ -72,6 +72,14 @@
             </tr>
             {% endfor %}
         </table>
+
+        <!-- Afficher le graphique 3D en base64 -->
+        <h3>Graphique 3D des Températures</h3>
+        {% if image_base64 %}
+            <img src="data:image/png;base64,{{ image_base64 }}" alt="Graphique 3D des Températures">
+        {% else %}
+            <p>Aucune mesure disponible pour cette ruche.</p>
+        {% endif %}
     {% endif %}
     
     <!-- Lien ajouté pour accéder à la page API Météo -->
