@@ -21,7 +21,7 @@ def enregistrer_mesure():
     for sensor_name, temperature in temperatures:
         capteur = Capteur.objects.get(identifiant= sensor_name)
         # Créez la mesure en liant le capteur
-        Mesure.objects.create(capteur=sensor_name, temperature=temperature)
+        Mesure.objects.create(id_capteur=capteur, temperature=temperature)
     print(f"Mesure enregistrée pour le capteur {capteur.identifiant}: {temperature}°C")
     return "Enregistrement terminé pour tous les capteurs disponibles."
 
