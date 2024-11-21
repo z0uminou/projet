@@ -65,3 +65,4 @@ class Mesure(models.Model):
     def __str__(self):
         return f"Date {self.date} Mesure {self.temperature} (Capteur {self.id_capteur})"
 
+

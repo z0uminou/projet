@@ -6,6 +6,8 @@ from .models import Rucher, Ruche, Mesure
 import time  # pour la simulation du délai de mesure
 from django.http import JsonResponse
 from django.urls import reverse
+from .weather_service import get_weather_data
+import random
 
 
 # Create your views here.
@@ -52,9 +54,20 @@ def vue_rucher(request, rucher_id):
         'rucher': rucher,
         'ruches': ruches,
         'ruche_select': ruche_select,
-        'mesures': mesures,
+        'mesures': mesures
     })
 
+def apimeteo(request):
+    return render(request, 'weather.html')
+
+
+def get_weather_data(request):
+    data = {
+        'temperature': round(random.uniform(15,30),2),
+        'humidity': round(random.uniform(40,80),2),
+        'status': 'Sunny'
+    }
+    return JsonResponse(data)
 
 #print("Noms des capteurs:", sensor_names)
 
