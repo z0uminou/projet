@@ -8,6 +8,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import io
 import base64
 import time  # pour la simulation du délai de mesure
+import json
+from django.db.models import Max
 
 # Page d'accueil simple
 def home(request):
@@ -36,47 +38,88 @@ def vue_rucher(request, rucher_id):
     
     # Si une ruche spécifique est sélectionnée, récupérer ses mesures
     ruche_id = request.GET.get('ruche_id')
-    mesures = None
     ruche_select = None
-    image_base64 = None  # Variable pour l'image du graphique
+    mesure_data = []
+   # image_base64 = None  # Variable pour l'image du graphique
 
     if ruche_id:
         ruche_select = get_object_or_404(Ruche, pk=ruche_id, rucher=rucher)
-        mesures = Mesure.objects.filter(id_capteur__ligne__cadre__ruche=ruche_select)
+        
+        latest_mesures = (
 
-        # Préparer les données pour le graphique 3D
-        y = [mesure.id_capteur.ligne.cadre.numero for mesure in mesures]
-        z = [mesure.id_capteur.ligne.numero_ligne for mesure in mesures]
-        x = [mesure.id_capteur.position for mesure in mesures]
-        temperature = [mesure.temperature for mesure in mesures]
+            Mesure.objects.filter(id_capteur__ligne__cadre__ruche=ruche_select)
+            .values('id_capteur')
+            .annotate(latest_date=Max('date'))
+        )
 
-        # Créer le graphique 3D
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        scatter = ax.scatter(x, y, z, c=temperature, cmap='viridis')
+        capteur_date_pairs = [(m['id_capteur'], m['latest_date']) for m in latest_mesures]
+
+        mesures = Mesure.objects.filter(
+            id_capteur__ligne__cadre__ruche=ruche_select,
+            id_capteur__in=[pair[0] for pair in capteur_date_pairs],
+            date__in=[pair[1] for pair in capteur_date_pairs],
+
+        )
+
+        mesures_data = [
+            {
+                'capteur_id': mesure.id_capteur.identifiant,
+                'temperature': mesure.temperature,
+                'ligne': mesure.id_capteur.ligne.numero_ligne,
+                'cadre': mesure.id_capteur.ligne.cadre.numero,
+                'capteur_position': mesure.id_capteur.position,
+            }
+            for mesure in mesures
+        ]
+    
 
 
-        # Paramétrer les axes
-        ax.set_xlabel('Position du Capteur')
-        ax.set_ylabel('Cadre')
-        ax.set_zlabel('Ligne')
-        ax.set_title(f'Températures des capteurs dans la ruche {ruche_select.nom}')
 
-        # Sauvegarder le graphique en mémoire et encoder en base64
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        image_base64 = base64.b64encode(buf.read()).decode('utf-8')
-        buf.close()
-        plt.close(fig)  # Fermer la figure pour libérer la mémoire
+        # for mesure in mesures:
+        #     capteur = mesure.id_capteur
+        #     mesure_data.append({
+        #         "ligne": capteur.ligne.numero_ligne,
+        #         "cadre": capteur.ligne.cadre.numero,
+        #         "capteur_position": capteur.position,
+        #         "temperature": mesure.temperature,
+        #         "capteur_id": capteur.identifiant,
+        #     })
+
+        # # Préparer les données pour le graphique 3D
+        # y = [mesure.id_capteur.ligne.cadre.numero for mesure in mesures]
+        # z = [mesure.id_capteur.ligne.numero_ligne for mesure in mesures]
+        # x = [mesure.id_capteur.position for mesure in mesures]
+        # temperature = [mesure.temperature for mesure in mesures]
+
+        # # Créer le graphique 3D
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111, projection='3d')
+        # scatter = ax.scatter(x, y, z, c=temperature, cmap='viridis')
+
+
+        # # Paramétrer les axes
+        # ax.set_xlabel('Position du Capteur')
+        # ax.set_ylabel('Cadre')
+        # ax.set_zlabel('Ligne')
+        # ax.set_title(f'Températures des capteurs dans la ruche {ruche_select.nom}')
+
+        # # Sauvegarder le graphique en mémoire et encoder en base64
+        # buf = io.BytesIO()
+        # plt.savefig(buf, format='png')
+        # buf.seek(0)
+        # image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+        # buf.close()
+        # plt.close(fig)  # Fermer la figure pour libérer la mémoire
+
+
 
     # Passer les données au template
     return render(request, 'details_rucher.html', {
         'rucher': rucher,
         'ruches': ruches,
         'ruche_select': ruche_select,
-        'mesures': mesures,
-        'image_base64': image_base64,
+        'mesures_data': mesure_data,
+ #       'image_base64': image_base64,
     })
 
 #print("Noms des capteurs:", sensor_names)

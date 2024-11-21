@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Détails du Rucher - {{ rucher.nom }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>{{ rucher.nom }}</h1>
     <h2>Localisation : {{ rucher.latitude }}, {{ rucher.longitude }}</h2>
-    
+
     <h3>Choisissez une ruche pour afficher les valeurs des capteurs</h3>
     <ul>
         {% for ruche in ruches %}
@@ -18,29 +19,131 @@
     </ul>
 
     {% if ruche_select %}
-        <h3>Mesures des Capteurs de la Ruche {{ ruche_select.nom }}</h3>
-        <table>
-            <tr>
-                <th>Date</th>
-                <th>Capteur</th>
-                <th>Température</th>
-            </tr>
-            {% for mesure in mesures %}
-            <tr>
-                <td>{{ mesure.date }}</td>
-                <td>{{ mesure.id_capteur.identifiant }}</td>
-                <td>{{ mesure.temperature }}°C</td>
-            </tr>
-            {% endfor %}
-        </table>
+        <h3>Graphique 3D des Températures de la Ruche {{ ruche_select.nom }}</h3>
+        <canvas id="temperatureChart" width="800" height="600"></canvas>
+        <script>
+            // Récupérer les données de la vue
+            const mesuresData = {{ mesures_data|safe }};
 
-        <!-- Afficher le graphique 3D en base64 -->
-        <h3>Graphique 3D des Températures</h3>
-        {% if image_base64 %}
-            <img src="data:image/png;base64,{{ image_base64 }}" alt="Graphique 3D des Températures">
-        {% else %}
-            <p>Aucune mesure disponible pour cette ruche.</p>
-        {% endif %}
+            // Préparer les données pour Chart.js
+            const dataPoints = mesuresData.map(mesure => ({
+                x: mesure.cadre,
+                y: mesure.ligne,
+                z: mesure.capteur_position,
+                temperature: mesure.temperature,
+                capteur_id: mesure.capteur_id
+            }));
+
+            // Définir les couleurs en fonction de la température
+            const colors = dataPoints.map(point => {
+                if (temp >= 35) return 'rgb(255, 0, 0)';  // Rouge
+                if (temp >= 27 && temp <= 33) return 'rgb(255, 255, 0)';  // Jaune
+                if (temp >= 20 && temp < 27) return 'rgb(0, 255, 0)';  // Vert
+                return 'rgb(0, 0, 255)';  // Bleu
+            });
+
+            // Configurer les données pour le graphique
+            const chartData = {
+                datasets: [{
+                    label: 'Températures des Capteurs',
+                    data: dataPoints.map(point => ({
+                        x: point.x,
+                        y: point.y,
+                        z: point.z,
+                        temperature: point.temperature,
+                        capteur_id: point.capteur_id
+                    })),
+                    backgroundColor: dataPoints.map(point => getColor(point.temperature)),
+                    pointRadius: 5
+                }]
+            };
+
+
+            const ctx = document.getElementById('temperatureChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bubble',
+                data: {
+                    datasets: [{
+                        label: 'Température des capteurs',
+                        data: dataPoints.map(point => ({
+                            x: point.x,  // Coordonnée X
+                            y: point.y,  // Coordonnée Y
+                            z: point.z
+                            r: 5,        // Taille du point (fixe)
+                        })),
+                        backgroundColor: colors,
+                    }]
+                },
+                options: {
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const point = dataPoints[index];
+                                    return `Capteur: ${point.capteur_id}, Temp: ${point.temperature}°C`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Position Cadre'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Position Ligne'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // // Configuration du graphique
+            // const config = {
+            //     type: 'bubble', // Simuler 3D avec des coordonnées et rayons variables
+            //     data: chartData,
+            //     options: {
+            //         scales: {
+            //             x: {
+            //                 title: { display: true, text: 'Cadres' },
+            //                 min: 1,
+            //                 max: 9
+            //             },
+            //             y: {
+            //                 title: { display: true, text: 'Lignes' },
+            //                 min: 1,
+            //                 max: 5
+            //             },
+            //             z: {
+            //                 title: { display: true, text: 'Position Capteur' },
+            //                 min: 1,
+            //                 max: 5
+            //             }
+            //         },
+            //         plugins: {
+            //             tooltip: {
+            //                 callbacks: {
+            //                     label: (context) => {
+            //                         const point = context.raw;
+            //                         return `Capteur: ${point.capteur_id}, Temp: ${point.temperature}°C`;
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     }
+            // };
+
+            // // Créer le graphique
+            // const temperatureChart = new Chart(
+            //     document.getElementById('temperatureChart'),
+            //     config
+            // );
+        </script>
     {% endif %}
 </body>
 </html>
