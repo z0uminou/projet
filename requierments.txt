@@ -1,0 +1,5 @@
+django==4.2.13
+celery==5.4.0
+redis==5.2.0
+django_celery_beat==2.5.0
+Redis-server==7.0.15
