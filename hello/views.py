@@ -55,9 +55,6 @@ def vue_rucher(request, rucher_id):
         ax = fig.add_subplot(111, projection='3d')
         scatter = ax.scatter(x, y, z, c=temperature, cmap='viridis')
 
-        # Ajouter une barre de couleur pour la température
-        #cbar = fig.colorbar(scatter, ax=ax, shrink=0.75, aspect=15)
-        #cbar.set_label('Température (°C)')
 
         # Paramétrer les axes
         ax.set_xlabel('Position du Capteur')
